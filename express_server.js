@@ -46,8 +46,11 @@ app.get('/urls/:id', (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body); // Log the POST request body to the console
+  const longURL = req.body; // Log the POST request body to the console
   res.send("Ok"); // Respond with 'Ok' (we will replace this)
+  let randID = generateRandomString();
+  urlDatabase[randID] = longURL['longURL'];
+  console.log(urlDatabase);
 });
 
 const generateRandomString = () => {
@@ -55,7 +58,7 @@ const generateRandomString = () => {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   const charlength = characters.length;
   for (let i = 0; i < 6; i++) {
-    result += charAt(Math.floor(Math.random() * charlength));
+    result += characters.charAt(Math.floor(Math.random() * charlength));
   };
   return result;
 };
