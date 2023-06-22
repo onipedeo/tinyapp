@@ -5,15 +5,16 @@ const PORT = 8080; //defaults port number
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 
+//List of shortening ids and the longURLs
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
-
+//send a response when client visits the root of or website
 app.get('/', (req, res) => {
   res.send('Hello');
 });
-
+//send the list of our shortened links to the client in an object format
 app.get('/urls.json', (req, res) => {
   res.send(urlDatabase);
 });
@@ -30,27 +31,32 @@ app.get('/set', (req, res) => {
 app.get('/fetch', (req, res) => {
   res.send(`a =${a}`);
 });
-
+//Renders the urls_index page when a get request to /urls is made
 app.get('/urls', (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render('urls_index', templateVars);
 });
-
+//Renders the add new Tiny url page 
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
-
+//Redirects to longURL when a get request on our shortened url is received.
 app.get("/u/:id", (req, res) => {
   const id = req.params.id;
   const longURL = urlDatabase[id];
-  res.redirect(longURL);
+  //Error handling when invalid Id is used.
+  if (longURL) {
+    res.redirect(longURL);
+  } else {
+    res.status(404).send('URL not found');
+  }
 });
-
+//Renders the urls_show page 
 app.get('/urls/:id', (req, res) => {
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
   res.render('urls_show', templateVars);
 });
-
+//Handles the post request from the new tiny url request from the website and redirects to the tinyurl page.
 app.post("/urls", (req, res) => {
   const longURL = req.body; // Log the POST request body to the console
   let randID = generateRandomString();
@@ -58,7 +64,7 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${randID}`); // Respond with 'Ok' (we will replace this)
 });
 
-
+//Generates randomID for our tiny urls
 const generateRandomString = () => {
   let result = '';
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
