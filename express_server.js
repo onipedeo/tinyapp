@@ -40,6 +40,12 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+app.get("/u/:id", (req, res) => {
+  const id = req.params.id;
+  const longURL = urlDatabase[id];
+  res.redirect(longURL);
+});
+
 app.get('/urls/:id', (req, res) => {
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
   res.render('urls_show', templateVars);
@@ -51,6 +57,7 @@ app.post("/urls", (req, res) => {
   urlDatabase[randID] = longURL['longURL'];
   res.redirect(`/urls/${randID}`); // Respond with 'Ok' (we will replace this)
 });
+
 
 const generateRandomString = () => {
   let result = '';
