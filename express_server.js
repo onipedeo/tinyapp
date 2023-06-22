@@ -47,10 +47,9 @@ app.get('/urls/:id', (req, res) => {
 
 app.post("/urls", (req, res) => {
   const longURL = req.body; // Log the POST request body to the console
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
   let randID = generateRandomString();
   urlDatabase[randID] = longURL['longURL'];
-  console.log(urlDatabase);
+  res.redirect(`/urls/${randID}`); // Respond with 'Ok' (we will replace this)
 });
 
 const generateRandomString = () => {
