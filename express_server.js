@@ -50,7 +50,15 @@ app.post("/urls", (req, res) => {
   res.send("Ok"); // Respond with 'Ok' (we will replace this)
 });
 
-
+const generateRandomString = () => {
+  let result = '';
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charlength = characters.length;
+  for (let i = 0; i < 6; i++) {
+    result += charAt(Math.floor(Math.random() * charlength));
+  };
+  return result;
+};
 
 
 app.listen(PORT, () => {
