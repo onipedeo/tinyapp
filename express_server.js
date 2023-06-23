@@ -65,6 +65,24 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${randID}`); // Respond with 'Ok' (we will replace this)
 });
 
+app.post('/urls/:id', (req, res) => {
+  const ID = req.params.id;
+  const newURL = req.body.newURL;
+
+  if (urlDatabase[ID]) {
+    urlDatabase[ID] = newURL;
+    res.redirect('/urls');
+  } else {
+    res.status(404).send('URL not found');
+  }
+});
+
+app.post('/urls/:id/delete', (req, res) => {
+  const ID = req.params.id;
+  delete urlDatabase[ID];
+  res.redirect('/urls');
+});
+
 //Generates randomID for our tiny urls
 const generateRandomString = () => {
   let result = '';
@@ -76,11 +94,6 @@ const generateRandomString = () => {
   return result;
 };
 
-app.post('/urls/:id/delete', (req, res) => {
-  const ID = req.params.id;
-  delete urlDatabase[ID];
-  res.redirect('/urls');
-});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
