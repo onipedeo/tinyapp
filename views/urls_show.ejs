@@ -20,9 +20,9 @@
           Short URL ID: <a href="/u/<%= id %>"><%= id %></a>
         </p>
       </div>
-      <form action="/urls" method = "POST">
+      <form action="/urls/<%= id %>" method = "POST">
           <p>New URL:
-          <input type="text" placeholder="Enter Url" label = "Enter Url">
+          <input type="text" placeholder="Enter Url" name = "newURL">
           <button type = "submit">Submit</button>
           </p>
       </form>
