@@ -8,7 +8,8 @@ app.use(express.urlencoded({ extended: true }));
 //List of shortening ids and the longURLs
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "9sm5xK": "http://www.google.com",
+  "Tchs7c": "http://www.yahoo.com"
 };
 //send a response when client visits the root of or website
 app.get('/', (req, res) => {
@@ -75,6 +76,11 @@ const generateRandomString = () => {
   return result;
 };
 
+app.post('/urls/:id/delete', (req, res) => {
+  const ID = req.params.id;
+  delete urlDatabase[ID];
+  res.redirect('/urls');
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
