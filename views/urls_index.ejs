@@ -28,6 +28,13 @@
             <tr>
               <td><%= id %></td>
               <td><%= urls[id] %></td>
+              <form method= "GET" action="/urls/<%= id %>">
+                <td>
+                  <button type="submit">
+                    Edit
+                </button>
+                </td>
+              </form>
               <form method="POST" action="/urls/9sm5xK/delete">
                 <td><button type = "submit">Delete</button></td>
               </form>
