@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const PORT = 8080; //defaults port number
+const PORT = 3000; //defaults port number
 
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
@@ -39,7 +39,11 @@ app.get('/urls', (req, res) => {
 
 //Renders the add new Tiny url page
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = {
+    urls: urlDatabase,
+    username: req.cookies["username"]
+  };
+  res.render("urls_new", templateVars);
 });
 //Redirects to longURL when a get request on our shortened url is received.
 app.get("/u/:id", (req, res) => {
@@ -87,6 +91,12 @@ app.post('/urls/:id/delete', (req, res) => {
 app.post("/login", (req, res) => {
   const cookie = req.body.username;
   res.cookie("username", cookie);
+  res.redirect("/urls");
+});
+
+//logout and clears cookies
+app.post("/logout", (req, res) => {
+  res.clearCookie("username");
   res.redirect("/urls");
 });
 
