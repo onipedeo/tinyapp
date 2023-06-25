@@ -83,6 +83,12 @@ app.post('/urls/:id/delete', (req, res) => {
   res.redirect('/urls');
 });
 
+//Request from the /login
+app.post("/login", (req, res) => {
+  const cookie = req.body.username;
+  res.cookie("Username", cookie);
+  res.redirect("/urls");
+})
 //Generates randomID for our tiny urls
 const generateRandomString = () => {
   let result = '';
