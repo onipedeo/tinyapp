@@ -2,6 +2,10 @@ const express = require('express');
 const app = express();
 const PORT = 8080; //defaults port number
 
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
+//set view engine to ejs
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 
@@ -24,20 +28,16 @@ app.get('/hello', (req, res) => {
   res.send('<html><body>Hello <b>World!</b></body></html>');
 });
 
-app.get('/set', (req, res) => {
-  const a = 1;
-  res.send(`a =${a}`);
-});
-
-app.get('/fetch', (req, res) => {
-  res.send(`a =${a}`);
-});
 //Renders the urls_index page when a get request to /urls is made
 app.get('/urls', (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = {
+    urls: urlDatabase,
+    username: req.cookies["username"]
+  };
   res.render('urls_index', templateVars);
 });
-//Renders the add new Tiny url page 
+
+//Renders the add new Tiny url page
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
@@ -52,7 +52,7 @@ app.get("/u/:id", (req, res) => {
     res.status(404).send('URL not found');
   }
 });
-//Renders the urls_show page 
+//Renders the urls_show page
 app.get('/urls/:id', (req, res) => {
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
   res.render('urls_show', templateVars);
@@ -64,7 +64,7 @@ app.post("/urls", (req, res) => {
   urlDatabase[randID] = longURL['longURL'];
   res.redirect(`/urls/${randID}`); // Respond with 'Ok' (we will replace this)
 });
-
+//Update URLS
 app.post('/urls/:id', (req, res) => {
   const ID = req.params.id;
   const newURL = req.body.newURL;
@@ -76,7 +76,7 @@ app.post('/urls/:id', (req, res) => {
     res.status(404).send('URL not found');
   }
 });
-
+//Delete Urls
 app.post('/urls/:id/delete', (req, res) => {
   const ID = req.params.id;
   delete urlDatabase[ID];
@@ -86,9 +86,10 @@ app.post('/urls/:id/delete', (req, res) => {
 //Request from the /login
 app.post("/login", (req, res) => {
   const cookie = req.body.username;
-  res.cookie("Username", cookie);
+  res.cookie("username", cookie);
   res.redirect("/urls");
-})
+});
+
 //Generates randomID for our tiny urls
 const generateRandomString = () => {
   let result = '';
@@ -96,7 +97,7 @@ const generateRandomString = () => {
   const charlength = characters.length;
   for (let i = 0; i < 6; i++) {
     result += characters.charAt(Math.floor(Math.random() * charlength));
-  };
+  }
   return result;
 };
 
