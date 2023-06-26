@@ -56,11 +56,13 @@ app.get("/u/:id", (req, res) => {
     res.status(404).send('URL not found');
   }
 });
+
 //Renders the urls_show page
 app.get('/urls/:id', (req, res) => {
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
   res.render('urls_show', templateVars);
 });
+
 //Handles the post request from the new tiny url request from the website and redirects to the tinyurl page.
 app.post("/urls", (req, res) => {
   const longURL = req.body; // Log the POST request body to the console
@@ -68,6 +70,7 @@ app.post("/urls", (req, res) => {
   urlDatabase[randID] = longURL['longURL'];
   res.redirect(`/urls/${randID}`); // Respond with 'Ok' (we will replace this)
 });
+
 //Update URLS
 app.post('/urls/:id', (req, res) => {
   const ID = req.params.id;

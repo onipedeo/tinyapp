@@ -9,26 +9,26 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        <div class="nav-item nav-link">
-          <% if (username) { %>
-            <span>
-              Logged in as <%= username %>
-            </span>
-            <form action="/logout" method="POST" class="nav-item">
-              <button type="submit" id="inputGroupFileAddon02">
-                LogOut
-              </button>
-            </form>
-            <% } else { %>
-              <form action="/login" method="POST">
-                <input type="text" name="username" placeholder="Username">
-                <button type="submit">
-                  Login
-                </button>
-              </form>
-              <% } %>
-        </div>
       </div>
     </div>
+    <div class="nav-item nav-link">
+      <% if (username) { %>
+        <span>
+          Logged in as <%= username %>
+        </span>
+    </div>
+    <form action="/logout" method="POST" class="nav-item">
+      <button type="submit" id="inputGroupFileAddon02">
+        LogOut
+      </button>
+    </form>
+    <% } else { %>
+      <form action="/login" method="POST">
+        <input type="text" name="username" placeholder="Username">
+        <button type="submit">
+          Login
+        </button>
+      </form>
+      <% } %>
   </nav>
 </header>
