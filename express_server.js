@@ -103,15 +103,6 @@ app.post("/logout", (req, res) => {
   res.redirect("/urls");
 });
 
-// Registration page route
-app.get("/register", (req, res) => {
-  const templateVars = {
-    urls: urlDatabase,
-    username: req.cookies["username"]
-  };
-  res.render('urls_reg', templateVars);
-});
-
 //Generates randomID for our tiny urls
 const generateRandomString = () => {
   let result = '';
@@ -122,6 +113,42 @@ const generateRandomString = () => {
   }
   return result;
 };
+
+// Registration page route
+app.get("/register", (req, res) => {
+  const templateVars = {
+    urls: urlDatabase,
+    username: req.cookies["username"]
+  };
+  res.render('urls_reg', templateVars);
+});
+
+// Users Object
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  }
+};
+
+//REgistration requests from the registration page
+app.post("/register", (req, res) => {
+  const randUserID = generateRandomString();
+  users[randUserID] = {
+    id: randUserID,
+    email: req.body.email,
+    password: req.body.password
+  };
+  res.cookie("user_id", randUserID);
+
+  res.redirect('/urls');
+});
 
 
 app.listen(PORT, () => {
