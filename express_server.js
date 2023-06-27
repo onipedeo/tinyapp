@@ -103,6 +103,15 @@ app.post("/logout", (req, res) => {
   res.redirect("/urls");
 });
 
+// Registration page route
+app.get("/register", (req, res) => {
+  const templateVars = {
+    urls: urlDatabase,
+    username: req.cookies["username"]
+  };
+  res.render('urls_reg', templateVars);
+});
+
 //Generates randomID for our tiny urls
 const generateRandomString = () => {
   let result = '';
