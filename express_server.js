@@ -150,6 +150,15 @@ app.get("/register", (req, res) => {
 
 //REgistration requests from the registration page
 app.post("/register", (req, res) => {
+  if (req.body.email === '' || req.body.password === '') {
+    res.status(400).send('Error 400: Email and/or Password cannot be empty');
+  } else {
+    for (const user_id in users) {
+      if (req.body.email === users[user_id].email) {
+        res.status(400).send('Error 400: User already exists');
+      };
+    }
+  };
   const randUserID = generateRandomString();
   users[randUserID] = {
     id: randUserID,
