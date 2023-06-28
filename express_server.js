@@ -23,6 +23,19 @@ const users = {
   }
 };
 
+// Function to find a user by email
+const findUserByEmail = function(userEmail) {
+  let currentUserObj;
+
+  for (const user in users) {
+    if (users[user]["email"] === userEmail) {
+      currentUserObj = users[user];
+      return currentUserObj;
+    }
+  }
+  return null;
+};
+
 //Generates randomID for our tiny urls
 const generateRandomString = () => {
   let result = '';
@@ -120,6 +133,15 @@ app.post('/urls/:id/delete', (req, res) => {
   res.redirect('/urls');
 });
 
+//Handle login link
+app.get("/login", (req, res) => {
+  const templateVars = {
+    urls: urlDatabase,
+    user: users[req.cookies.user_id]
+  };
+  res.render("urls_login", templateVars)
+});
+
 //Request from the /login
 app.post("/login", (req, res) => {
   for (const user_id in users) {
@@ -128,7 +150,7 @@ app.post("/login", (req, res) => {
       res.redirect('/urls');
       return;
     }
-  };
+  }
   res.send('User not found');
 });
 
@@ -153,12 +175,11 @@ app.post("/register", (req, res) => {
   if (req.body.email === '' || req.body.password === '') {
     res.status(400).send('Error 400: Email and/or Password cannot be empty');
   } else {
-    for (const user_id in users) {
-      if (req.body.email === users[user_id].email) {
-        res.status(400).send('Error 400: User already exists');
-      };
+    const checkIfUserExists = findUserByEmail(req.body.email);
+    if (checkIfUserExists !== null) {
+      res.status(400).send('Error 400: User already exists');
     }
-  };
+  }
   const randUserID = generateRandomString();
   users[randUserID] = {
     id: randUserID,
