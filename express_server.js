@@ -145,13 +145,19 @@ app.get("/login", (req, res) => {
 //Request from the /login
 app.post("/login", (req, res) => {
   for (const user_id in users) {
+    if (req.body.email === '' || req.body.password === '') {
+      res.status(400).send('Error 400: Email and/or Password cannot be empty');
+    }
+    if (users[user_id].email === req.body.email && users[user_id].password !== req.body.password) {
+      res.status(403).send('Error 403: Permission denied/Password Incorrect');
+    }
     if (users[user_id].email === req.body.email && users[user_id].password === req.body.password) {
       res.cookie('user_id', user_id);
       res.redirect('/urls');
       return;
     }
   }
-  res.send('User not found');
+  res.status(403).send('Error 403: User not Found');
 });
 
 //logout and clears cookies
