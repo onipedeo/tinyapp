@@ -7,10 +7,6 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
-        <a class="nav-item nav-link" href="/register">Register</a>
-        <a class="nav-item nav-link " href="/login">
-          Login
-        </a>
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
@@ -22,10 +18,14 @@
         </span>
       </div>
       <form action="/logout" method="POST" class="nav-item">
-        <button type="submit">
+        <button type="submit" class="btn btn-primary">
           LogOut
         </button>
       </form>
       <% } %>
+        <a class="nav-item nav-link" href="/register">Register</a>
+        <a class="nav-item nav-link " href="/login">
+          Login
+        </a>
   </nav>
 </header>
