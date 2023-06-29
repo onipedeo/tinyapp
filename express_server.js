@@ -135,11 +135,16 @@ app.post('/urls/:id/delete', (req, res) => {
 
 //Handle login link
 app.get("/login", (req, res) => {
+  if (req.cookies.user_id && users[req.cookies.user_id]) {
+    res.redirect('/urls');
+    return;
+  }
   const templateVars = {
     urls: urlDatabase,
     user: users[req.cookies.user_id]
   };
-  res.render("urls_login", templateVars)
+  res.render("urls_login", templateVars);
+
 });
 
 //Request from the /login
@@ -168,6 +173,10 @@ app.post("/logout", (req, res) => {
 
 // Registration page route
 app.get("/register", (req, res) => {
+  if (req.cookies.user_id && users[req.cookies.user_id]) {
+    res.redirect('/urls');
+    return;
+  }
   const templateVars = {
     urls: urlDatabase,
     user: users[req.cookies.user_id]
