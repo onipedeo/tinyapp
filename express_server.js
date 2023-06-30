@@ -19,8 +19,8 @@ const users = {
     email: "user@example.com",
     password: "purple-monkey-dinosaur",
   },
-  user2RandomID: {
-    id: "user2RandomID",
+  aJ48lW: {
+    id: "aJ48lW",
     email: "tbitcoin485@gmail.com",
     password: "1",
   }
@@ -41,7 +41,7 @@ const urlDatabase = {
     userID: "aw48lW",
   },
   "Tchs8c": {
-    longURL: "http://www.yahoo.com",
+    longURL: "http://www.yahoo.ca",
     userID: "aw48lW",
   }
 };
@@ -73,6 +73,18 @@ const generateRandomString = () => {
   return result;
 };
 
+//Function to filter the logged in UserID
+const urlsForUser = function(id) {
+  let result = {};
+  for (const keys in urlDatabase) {
+    if (urlDatabase[keys].userID === id) {
+      result[keys] = urlDatabase[keys];
+    }
+  }
+
+  return result;
+};
+
 
 /*
 ROUTES
@@ -93,11 +105,24 @@ app.get('/hello', (req, res) => {
 
 //Renders the urls_index page when a get request to /urls is made
 app.get('/urls', (req, res) => {
-  const templateVars = {
-    urls: urlDatabase,
-    user: users[req.cookies.user_id]
-  };
-  res.render('urls_index', templateVars);
+  //Check if User owns the url
+  const userID = req.cookies.user_id;
+  if (userID) {
+
+    const usersURL = urlsForUser(userID);
+
+    const templateVars = {
+      urls: usersURL,
+      user: users[req.cookies.user_id]
+    };
+    res.render('urls_index', templateVars);
+  }
+  res.send(`
+  <div>
+    <h3>Please login or Register<h3>
+    <a href="/login">Login</a>
+    <a href="/register">Register</a>
+  </div>`);
 });
 
 //Renders the add new Tiny url page
@@ -126,16 +151,31 @@ app.get("/u/:id", (req, res) => {
 
 //Renders the urls_show page
 app.get('/urls/:id', (req, res) => {
-  const templateVars = {
-    id: req.params.id,
-    longURL: urlDatabase[req.params.id].longURL,
-    user: users[req.cookies.user_id]
-  };
-  res.render('urls_show', templateVars);
+  //Check if user is logged in or not
+  if (!(req.cookies.user_id && users[req.cookies.user_id])) {
+    res.send('Please Login to view Urls');
+    return;
+  }
+  //Check if User owns the url
+  const userID = req.cookies.user_id;
+  const usersURL = urlsForUser(userID);
+  const longURL = usersURL[req.params.id];
+
+  if (longURL) {
+    const templateVars = {
+      id: req.params.id,
+      longURL: longURL.longURL,
+      user: users[req.cookies.user_id]
+    };
+    res.render('urls_show', templateVars);
+  } else {
+    res.send('This URL doesn\'t belong to you');
+  }
 });
 
 //Handles the post request from the new tiny url request from the website and redirects to the tinyurl page.
 app.post("/urls", (req, res) => {
+  //Check if user is logged in or not
   if (!(req.cookies.user_id && users[req.cookies.user_id])) {
     res.send('Please Login to post a new Url');
     return;
@@ -162,8 +202,17 @@ app.post('/urls/:id', (req, res) => {
 //Delete Urls
 app.post('/urls/:id/delete', (req, res) => {
   const ID = req.params.id;
-  delete urlDatabase[ID];
-  res.redirect('/urls');
+  //Check if User owns the url
+  const userID = req.cookies.user_id;
+  const usersURL = urlsForUser(userID);
+  const longURL = usersURL[ID];
+
+  if (longURL) {
+    delete urlDatabase[ID];
+    res.redirect('/urls');
+  } else {
+    res.send('This URL doesn\'t belong to you');
+  }
 });
 
 //Handle login link
