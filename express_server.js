@@ -9,6 +9,9 @@ app.use(cookieParser());
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 
+/*
+E- DATABASES
+*/
 // Users Object
 const users = {
   userRandomID: {
@@ -18,11 +21,34 @@ const users = {
   },
   user2RandomID: {
     id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk",
+    email: "tbitcoin485@gmail.com",
+    password: "1",
   }
 };
 
+//List of shortening ids and the longURLs
+const urlDatabase = {
+  "b2xVn2": {
+    longURL: "http://www.lighthouselabs.ca",
+    userID: "aJ48lW",
+  },
+  "9sm5xK": {
+    longURL: "http://www.google.com",
+    userID: "aJ48lW",
+  },
+  "Tchs7c": {
+    longURL: "http://www.yahoo.com",
+    userID: "aw48lW",
+  },
+  "Tchs8c": {
+    longURL: "http://www.yahoo.com",
+    userID: "aw48lW",
+  }
+};
+
+/*
+HELPER FUNCTIONS
+*/
 // Function to find a user by email
 const findUserByEmail = function(userEmail) {
   let currentUserObj;
@@ -47,12 +73,10 @@ const generateRandomString = () => {
   return result;
 };
 
-//List of shortening ids and the longURLs
-const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
-  "Tchs7c": "http://www.yahoo.com"
-};
+
+/*
+ROUTES
+*/
 
 //send a response when client visits the root of or website
 app.get('/', (req, res) => {
@@ -78,8 +102,12 @@ app.get('/urls', (req, res) => {
 
 //Renders the add new Tiny url page
 app.get("/urls/new", (req, res) => {
+  if (!(req.cookies.user_id && users[req.cookies.user_id])) {
+    res.redirect('/login');
+    return;
+  }
   const templateVars = {
-    urls: urlDatabase,
+    urls: urlDatabase.ID,
     user: users[req.cookies.user_id]
   };
   res.render("urls_new", templateVars);
@@ -87,7 +115,7 @@ app.get("/urls/new", (req, res) => {
 //Redirects to longURL when a get request on our shortened url is received.
 app.get("/u/:id", (req, res) => {
   const id = req.params.id;
-  const longURL = urlDatabase[id];
+  const longURL = urlDatabase[id].longURL;
   //Error handling when invalid Id is used.
   if (longURL) {
     res.redirect(longURL);
@@ -100,7 +128,7 @@ app.get("/u/:id", (req, res) => {
 app.get('/urls/:id', (req, res) => {
   const templateVars = {
     id: req.params.id,
-    longURL: urlDatabase[req.params.id],
+    longURL: urlDatabase[req.params.id].longURL,
     user: users[req.cookies.user_id]
   };
   res.render('urls_show', templateVars);
@@ -108,9 +136,14 @@ app.get('/urls/:id', (req, res) => {
 
 //Handles the post request from the new tiny url request from the website and redirects to the tinyurl page.
 app.post("/urls", (req, res) => {
-  const longURL = req.body; // Log the POST request body to the console
+  if (!(req.cookies.user_id && users[req.cookies.user_id])) {
+    res.send('Please Login to post a new Url');
+    return;
+  }
+  const longURL = req.body.longURL; // Log the POST request body to the console
   let randID = generateRandomString();
-  urlDatabase[randID] = longURL['longURL'];
+  urlDatabase[randID] = {};
+  urlDatabase[randID]['longURL'] = longURL;
   res.redirect(`/urls/${randID}`); // Respond with 'Ok' (we will replace this)
 });
 
@@ -119,8 +152,8 @@ app.post('/urls/:id', (req, res) => {
   const ID = req.params.id;
   const newURL = req.body.newURL;
 
-  if (urlDatabase[ID]) {
-    urlDatabase[ID] = newURL;
+  if (urlDatabase[ID].longURL) {
+    urlDatabase[ID].longURL = newURL;
     res.redirect('/urls');
   } else {
     res.status(404).send('URL not found');
