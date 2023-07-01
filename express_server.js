@@ -242,7 +242,6 @@ app.post("/login", (req, res) => {
       res.status(400).send('Error 400: Email and/or Password cannot be empty');
       return;
     }
-    // const hashedPassword = bcrypt.hashSync(req.body.password, 10);
 
     if (users[user_id].email === req.body.email && !bcrypt.compareSync(req.body.password, users[user_id].password)) {
       res.status(403).send('Error 403: Permission denied/Password Incorrect');
@@ -301,7 +300,6 @@ app.post("/register", (req, res) => {
     password: hashedPassword
   };
   res.cookie("user_id", randUserID);
-  console.log(users);
 
   res.redirect('/urls');
 });
