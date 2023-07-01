@@ -24,7 +24,7 @@ const users = {
   aJ48lW: {
     id: "aJ48lW",
     email: "tbitcoin485@gmail.com",
-    password: "1",
+    password: bcrypt.hashSync("1", (10))
   }
 };
 
