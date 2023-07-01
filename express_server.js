@@ -4,8 +4,16 @@ const PORT = 3000; //defaults port number
 
 //Dependencies
 const bcrypt = require("bcryptjs");
-const cookieParser = require('cookie-parser');
-app.use(cookieParser());
+// const cookieParser = require('cooke-parser');
+const sessionession = require('cookie-session');
+// app.use(cookieParser());
+app.use(sessionession({
+  name: 'user_id',
+  keys: ['motunrayo', "ijaodola", " Olumose"],
+
+  //Cookie Option
+  maxAge: 24 * 60 * 60 * 1000 //24 hours
+}));
 
 //set view engine to ejs
 app.set('view engine', 'ejs');
@@ -108,35 +116,35 @@ app.get('/hello', (req, res) => {
 //Renders the urls_index page when a get request to /urls is made
 app.get('/urls', (req, res) => {
   //Check if User owns the url
-  const userID = req.cookies.user_id;
+  const userID = req.session.user_id;
   if (userID) {
 
     const usersURL = urlsForUser(userID);
 
     const templateVars = {
       urls: usersURL,
-      user: users[req.cookies.user_id]
+      user: users[req.session.user_id]
     };
     res.render('urls_index', templateVars);
   }
-  res.redirect('/login');
-  // res.send(`
-  // <div>
-  //   <h3>Please login or Register<h3>
-  //   <a href="/login">Login</a>
-  //   <a href="/register">Register</a>
-  // </div>`);
+  // res.redirect('/login');
+  res.send(`
+  <div>
+    <h3>Please login or Register<h3>
+    <a href="/login">Login</a>
+    <a href="/register">Register</a>
+  </div>`);
 });
 
 //Renders the add new Tiny url page
 app.get("/urls/new", (req, res) => {
-  if (!(req.cookies.user_id && users[req.cookies.user_id])) {
+  if (!(req.session.user_id && users[req.session.user_id])) {
     res.redirect('/login');
     return;
   }
   const templateVars = {
     urls: urlDatabase.ID,
-    user: users[req.cookies.user_id]
+    user: users[req.session.user_id]
   };
   res.render("urls_new", templateVars);
 });
@@ -155,12 +163,12 @@ app.get("/u/:id", (req, res) => {
 //Renders the urls_show page
 app.get('/urls/:id', (req, res) => {
   //Check if user is logged in or not
-  if (!(req.cookies.user_id && users[req.cookies.user_id])) {
+  if (!(req.session.user_id && users[req.session.user_id])) {
     res.send('Please Login to view Urls');
     return;
   }
   //Check if User owns the url
-  const userID = req.cookies.user_id;
+  const userID = req.session.user_id;
   const usersURL = urlsForUser(userID);
   const longURL = usersURL[req.params.id];
 
@@ -168,7 +176,7 @@ app.get('/urls/:id', (req, res) => {
     const templateVars = {
       id: req.params.id,
       longURL: longURL.longURL,
-      user: users[req.cookies.user_id]
+      user: users[req.session.user_id]
     };
     res.render('urls_show', templateVars);
   } else {
@@ -179,11 +187,11 @@ app.get('/urls/:id', (req, res) => {
 //Handles the post request from the new tiny url request from the website and redirects to the tinyurl page.
 app.post("/urls", (req, res) => {
   //Check if user is logged in or not
-  if (!(req.cookies.user_id && users[req.cookies.user_id])) {
+  if (!(req.session.user_id && users[req.session.user_id])) {
     res.send('Please Login to post a new Url');
     return;
   }
-  const userID = req.cookies.user_id;
+  const userID = req.session.user_id;
   const longURL = req.body.longURL; // Log the POST request body to the console
   let randID = generateRandomString();
   urlDatabase[randID] = {};
@@ -209,7 +217,7 @@ app.post('/urls/:id', (req, res) => {
 app.post('/urls/:id/delete', (req, res) => {
   const ID = req.params.id;
   //Check if User owns the url
-  const userID = req.cookies.user_id;
+  const userID = req.session.user_id;
   const usersURL = urlsForUser(userID);
   const longURL = usersURL[ID];
 
@@ -223,13 +231,13 @@ app.post('/urls/:id/delete', (req, res) => {
 
 //Handle login link
 app.get("/login", (req, res) => {
-  if (req.cookies.user_id && users[req.cookies.user_id]) {
+  if (req.session.user_id && users[req.session.user_id]) {
     res.redirect('/urls');
     return;
   }
   const templateVars = {
     urls: urlDatabase,
-    user: users[req.cookies.user_id]
+    user: users[req.session.user_id]
   };
   res.render("urls_login", templateVars);
 
@@ -248,7 +256,7 @@ app.post("/login", (req, res) => {
       return;
     }
     if (users[user_id].email === req.body.email && bcrypt.compareSync(req.body.password, users[user_id].password)) {
-      res.cookie('user_id', user_id);
+      req.session.user_id = users[user_id].id;
       res.redirect('/urls');
       return;
     }
@@ -257,21 +265,21 @@ app.post("/login", (req, res) => {
   return;
 });
 
-//logout and clears cookies
+//logout and clears session
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
+  req.session = null;
   res.redirect("/login");
 });
 
 // Registration page route
 app.get("/register", (req, res) => {
-  if (req.cookies.user_id && users[req.cookies.user_id]) {
+  if (req.session.user_id && users[req.session.user_id]) {
     res.redirect('/urls');
     return;
   }
   const templateVars = {
     urls: urlDatabase,
-    user: users[req.cookies.user_id]
+    user: users[req.session.user_id]
   };
   res.render('urls_reg', templateVars);
 });
@@ -299,7 +307,8 @@ app.post("/register", (req, res) => {
     email: req.body.email,
     password: hashedPassword
   };
-  res.cookie("user_id", randUserID);
+  req.session.user_id = randUserID;
+
 
   res.redirect('/urls');
 });
