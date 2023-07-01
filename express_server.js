@@ -2,6 +2,8 @@ const express = require('express');
 const app = express();
 const PORT = 3000; //defaults port number
 
+//Dependencies
+const bcrypt = require("bcryptjs");
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
@@ -117,12 +119,13 @@ app.get('/urls', (req, res) => {
     };
     res.render('urls_index', templateVars);
   }
-  res.send(`
-  <div>
-    <h3>Please login or Register<h3>
-    <a href="/login">Login</a>
-    <a href="/register">Register</a>
-  </div>`);
+  res.redirect('/login');
+  // res.send(`
+  // <div>
+  //   <h3>Please login or Register<h3>
+  //   <a href="/login">Login</a>
+  //   <a href="/register">Register</a>
+  // </div>`);
 });
 
 //Renders the add new Tiny url page
@@ -180,10 +183,13 @@ app.post("/urls", (req, res) => {
     res.send('Please Login to post a new Url');
     return;
   }
+  const userID = req.cookies.user_id;
   const longURL = req.body.longURL; // Log the POST request body to the console
   let randID = generateRandomString();
   urlDatabase[randID] = {};
   urlDatabase[randID]['longURL'] = longURL;
+  urlDatabase[randID]['userID'] = userID;
+
   res.redirect(`/urls/${randID}`); // Respond with 'Ok' (we will replace this)
 });
 
@@ -234,17 +240,22 @@ app.post("/login", (req, res) => {
   for (const user_id in users) {
     if (req.body.email === '' || req.body.password === '') {
       res.status(400).send('Error 400: Email and/or Password cannot be empty');
+      return;
     }
-    if (users[user_id].email === req.body.email && users[user_id].password !== req.body.password) {
+    // const hashedPassword = bcrypt.hashSync(req.body.password, 10);
+
+    if (users[user_id].email === req.body.email && !bcrypt.compareSync(req.body.password, users[user_id].password)) {
       res.status(403).send('Error 403: Permission denied/Password Incorrect');
+      return;
     }
-    if (users[user_id].email === req.body.email && users[user_id].password === req.body.password) {
+    if (users[user_id].email === req.body.email && bcrypt.compareSync(req.body.password, users[user_id].password)) {
       res.cookie('user_id', user_id);
       res.redirect('/urls');
       return;
     }
   }
   res.status(403).send('Error 403: User not Found');
+  return;
 });
 
 //logout and clears cookies
@@ -271,19 +282,26 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   if (req.body.email === '' || req.body.password === '') {
     res.status(400).send('Error 400: Email and/or Password cannot be empty');
+    return;
   } else {
     const checkIfUserExists = findUserByEmail(req.body.email);
     if (checkIfUserExists !== null) {
       res.status(400).send('Error 400: User already exists');
+      return;
     }
   }
   const randUserID = generateRandomString();
+  //hashing password
+  const password = req.body.password;
+  const hashedPassword = bcrypt.hashSync(password, 10);
+
   users[randUserID] = {
     id: randUserID,
     email: req.body.email,
-    password: req.body.password
+    password: hashedPassword
   };
   res.cookie("user_id", randUserID);
+  console.log(users);
 
   res.redirect('/urls');
 });
