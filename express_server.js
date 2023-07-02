@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const PORT = 3000; //defaults port number
+const PORT = 8080; //defaults port number
 
 //import helpers module
 const { findUserByEmail, generateRandomString } = require('./helpers');
@@ -86,21 +86,21 @@ app.get('/urls.json', (req, res) => {
 app.get('/urls', (req, res) => {
   //Check if User owns the url
   const userID = req.session.user_id;
-  if (userID) {
-    const usersURL = urlsForUser(userID);
-
-    const templateVars = {
-      urls: usersURL,
-      user: users[userID]
-    };
-    res.render('urls_index', templateVars);
+  if (!userID) {
+    res.send(`
+    <div>
+      <h3>Please login or Register<h3>
+      <a href="/login">Login</a>
+      <a href="/register">Register</a>
+    </div>`);
   }
-  res.send(`
-  <div>
-    <h3>Please login or Register<h3>
-    <a href="/login">Login</a>
-    <a href="/register">Register</a>
-  </div>`);
+  const usersURL = urlsForUser(userID);
+
+  const templateVars = {
+    urls: usersURL,
+    user: users[userID]
+  };
+  res.render('urls_index', templateVars);
 });
 
 
@@ -298,7 +298,7 @@ app.post("/register", (req, res) => {
     return;
   } else {
     const checkIfUserExists = findUserByEmail(email, users);
-    if (checkIfUserExists !== null) {
+    if (checkIfUserExists !== undefined) {
       res.status(400).send('Error 400: User already exists');
       return;
     }
