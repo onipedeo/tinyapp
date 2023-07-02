@@ -11,7 +11,7 @@ const findUserByEmail = function(userEmail, database) {
       return currentUserObj;
     }
   }
-  return null;
+  return;
 };
 
 
