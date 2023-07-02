@@ -93,6 +93,7 @@ app.get('/urls', (req, res) => {
       <a href="/login">Login</a>
       <a href="/register">Register</a>
     </div>`);
+    return;
   }
   const usersURL = urlsForUser(userID);
 
