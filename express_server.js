@@ -2,6 +2,9 @@ const express = require('express');
 const app = express();
 const PORT = 3000; //defaults port number
 
+//import helpers module
+const { findUserByEmail, generateRandomString } = require('./helpers');
+
 //Dependencies
 const bcrypt = require("bcryptjs");
 const session = require('cookie-session');
@@ -55,31 +58,8 @@ const urlDatabase = {
 };
 
 /*
-HELPER FUNCTIONS
+*Functions
 */
-// Function to find a user by email
-const findUserByEmail = function(userEmail) {
-  let currentUserObj;
-
-  for (const user in users) {
-    if (users[user]["email"] === userEmail) {
-      currentUserObj = users[user];
-      return currentUserObj;
-    }
-  }
-  return null;
-};
-
-//Generates randomID for our tiny urls
-const generateRandomString = () => {
-  let result = '';
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  const charlength = characters.length;
-  for (let i = 0; i < 6; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charlength));
-  }
-  return result;
-};
 
 //Function to filter the logged in UserID
 const urlsForUser = function(id) {
@@ -91,6 +71,7 @@ const urlsForUser = function(id) {
   }
   return result;
 };
+
 
 /*
 ROUTES
@@ -260,7 +241,7 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  const user = findUserByEmail(email);
+  const user = findUserByEmail(email, users);
 
   //check if no email or password is inputed in login screen
   if (email === '' || password === '') {
@@ -316,7 +297,7 @@ app.post("/register", (req, res) => {
     res.status(400).send('Error 400: Email and/or Password cannot be empty');
     return;
   } else {
-    const checkIfUserExists = findUserByEmail(email);
+    const checkIfUserExists = findUserByEmail(email, users);
     if (checkIfUserExists !== null) {
       res.status(400).send('Error 400: User already exists');
       return;
